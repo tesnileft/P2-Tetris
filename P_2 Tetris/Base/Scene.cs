@@ -4,13 +4,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Base;
 
-public class Scene
+public abstract class Scene
 {
-    HashSet<GameObject> _objects;
-    public virtual void Init()
-    {
-        //Load all your stuff here
-    }
+    protected HashSet<GameObject> _objects;
+    public abstract void Init();
     public virtual void Draw(SpriteBatch spriteBatch)
     {
         foreach (GameObject o in _objects)

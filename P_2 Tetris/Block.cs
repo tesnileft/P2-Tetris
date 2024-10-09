@@ -7,10 +7,28 @@ namespace P_2_Tetris;
 
 public class Block
 {
-    Point Position; //Position in the grid
+    Point Position; //Position in the grid 0,0 is top left
     private BlockDefinition definition;
     
-    static Dictionary<BlockShape, Matrix> blocks = new Dictionary<BlockShape, Matrix>();
+    static Dictionary<BlockShape, bool[,]> BlockDict = new ()
+    {
+        {BlockShape.Square, new bool[,]
+            {
+                {false, false, false, false},
+                {false, true, true, false},
+                {false, true, true, false},
+                {false, false, false, false}
+            }
+        },
+        { BlockShape.Long, new bool[,]
+            { 
+                {true, false, false, false},
+                {true, false, false, false},
+                {true, false, false, false},
+                {true, false, false, false}
+            }
+        }
+    };
     public enum BlockShape
     {
         Square,
@@ -53,6 +71,7 @@ public class Block
     void Rotate(bool counterClockwise = false)
     {
         //Weee spinny
+        
     }
 
     public void CheckCollision()
