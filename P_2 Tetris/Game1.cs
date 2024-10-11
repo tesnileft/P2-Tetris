@@ -1,6 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Base;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using P_2_Tetris.Scenes;
 
 namespace P_2_Tetris;
 
@@ -8,23 +10,26 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    Scene CurrentScene;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        this.Window.AllowUserResizing = false;
     }
 
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
+
+        CurrentScene = new GameScene();
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
@@ -35,6 +40,8 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
+        
+        CurrentScene.Update(gameTime);
 
         // TODO: Add your update logic here
 
@@ -44,7 +51,7 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);
-
+        CurrentScene.Draw(_spriteBatch);
         // TODO: Add your drawing code here
 
         base.Draw(gameTime);

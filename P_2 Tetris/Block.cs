@@ -7,12 +7,12 @@ namespace P_2_Tetris;
 
 public class Block
 {
-    Point Position; //Position in the grid 0,0 is top left
-    private BlockDefinition definition;
+    public Point Position; //Position in the grid 0,0 is top left
+    private BlockDefinition definition; 
     
     static Dictionary<BlockShape, bool[,]> BlockDict = new ()
     {
-        {BlockShape.Square, new bool[,]
+        {BlockShape.O, new bool[,]
             {
                 {false, false, false, false},
                 {false, true, true, false},
@@ -20,22 +20,65 @@ public class Block
                 {false, false, false, false}
             }
         },
-        { BlockShape.Long, new bool[,]
+        { BlockShape.I, new bool[,]
             { 
-                {true, false, false, false},
-                {true, false, false, false},
-                {true, false, false, false},
-                {true, false, false, false}
+                {false, true, false, false},
+                {false, true, false, false},
+                {false, true, false, false},
+                {false, true, false, false}
+            }
+        },
+        { BlockShape.L, new bool[,]
+            { 
+                {false, true, false},
+                {false, true, false},
+                {false, true, true}
+            }
+        },
+        { BlockShape.J, new bool[,]
+            { 
+                {false, true, false},
+                {false, true, false},
+                {true, true, false}
+            }
+        },
+        { BlockShape.Z, new bool[,]
+            { 
+                {true, true, false},
+                {false, true, true},
+                {false, false, false}
+            }
+        },
+            
+        { BlockShape.S, new bool[,]
+            { 
+                {false, true, true},
+                {true, true, false},
+                {false, false, false}
+            }
+        },
+        { BlockShape.T, new bool[,]
+            { 
+                {true, true, true},
+                {false, true, false},
+                {false, false, false}
             }
         }
     };
+    
+    //Enum for all the different shapes the blocks can have
     public enum BlockShape
     {
-        Square,
-        Long
+        O,
+        I,
+        L,
+        J,
+        T,
+        S,
+        Z
     }
-
-    struct BlockDefinition
+    //Stores color and shape of the block
+    struct BlockDefinition 
     {
         private Color Color;
         bool[,] Shape;
@@ -47,36 +90,41 @@ public class Block
         }
 
     }
-    Block(BlockShape blockShape)
+    public Block(BlockShape blockShape)
     {
         bool[,] shape = new bool [4, 4];
         
         definition = new BlockDefinition(shape, Color.Aqua);
     }
 
-    public Block MakeBlock(BlockShape blockShape)
-    {
-        return new Block(blockShape);
-    }
-
+    //Move block left/right
     public void Move()
     {
-        //Move block left/right
-    }
-
-    public void Drop()
-    {
-        //Drop it down fast n stuff
-    }
-    void Rotate(bool counterClockwise = false)
-    {
-        //Weee spinny
         
     }
 
+    //Drop it down fast n stuff
+    public void Drop()
+    {
+        
+    }
+    
+    //Weee spinny
+    void Rotate(bool counterClockwise = false)
+    {
+        
+        
+    }
+
+    //Cool collision code
     public void CheckCollision()
     {
-        //Cool collision code
+        
+    }
+    //Attempt to move the block down
+    public void Tick()
+    {
+        
     }
     
     
