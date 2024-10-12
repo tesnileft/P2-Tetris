@@ -10,6 +10,7 @@ public class Block
     public Point Position; //Position in the grid 0,0 is top left
     private BlockDefinition definition; 
     
+    ///Dictionary that holds all the different Tetromino shapes
     static Dictionary<BlockShape, bool[,]> BlockDict = new ()
     {
         {BlockShape.O, new bool[,]
