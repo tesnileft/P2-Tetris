@@ -45,6 +45,7 @@ public class GameScene : Scene
         if (timeSinceLastTick >= millisecondsPerTick)
         {
             _currentBlock.Tick();
+            timeSinceLastTick = 0;
         }
         
         
