@@ -46,12 +46,27 @@ public class GameScene : Scene
         {
             _currentBlock.Tick();
             timeSinceLastTick = 0;
+            if (_currentBlock.CheckCollision(grid))
+            {
+                //Move up the tetromino by one to not insert it overlapping other blocks
+                _currentBlock.Position.X += 1;
+                grid.InsertBlock(_currentBlock);
+                _currentBlock = _nextBlock;
+                _nextBlock = TakeBlock();
+            }
+            
+            
         }
+        //Control stuff
         
         
-        _currentBlock = _blocksBag.TryTake(out Block block) ? block : null;
         
         base.Update(gameTime);
+    }
+
+    public override void Draw(SpriteBatch spriteBatch)
+    {
+        _currentBlock.Draw(spriteBatch);
     }
 
     void ResetBag()
@@ -59,7 +74,7 @@ public class GameScene : Scene
         _blocksBag = new ConcurrentBag<Block>();
         foreach (Block.BlockShape shape in Enum.GetValues(typeof(Block.BlockShape)))
         {
-            _blocksBag.Add(new Block(shape));
+            _blocksBag.Add(new Block(shape, grid));
         }
     }
 

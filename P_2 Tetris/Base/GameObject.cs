@@ -7,7 +7,7 @@ namespace Base;
 public class GameObject
 {
     HashSet<GameObject> children;
-    public void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime)
     {
         foreach (GameObject child in children)
         {
@@ -15,7 +15,7 @@ public class GameObject
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public virtual void Draw(SpriteBatch spriteBatch)
     {
         foreach (GameObject child in children)
         {

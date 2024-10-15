@@ -6,15 +6,15 @@ namespace P_2_Tetris;
 
 public class BlockGrid : GameObject
 {
-    GridCell[,] grid;
+    public GridCell[,] Grid;
 
-    struct GridCell
+    public class GridCell
     {
         public Texture2D sprite;
         public Color color;
     }
     //Insert a block into the grid after it's detected to have gotten stuck
-    private void InsertBlock(Block block)
+    public void InsertBlock(Block block)
     {
         
     }
