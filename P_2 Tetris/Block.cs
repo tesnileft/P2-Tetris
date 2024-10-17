@@ -11,9 +11,10 @@ namespace P_2_Tetris;
 public class Block : GameObject
 {
     public Point Position; //Position in the grid 0,0 is top left
-    private BlockDefinition definition;
+    public BlockDefinition Definition;
     public BlockGrid container;
     public Texture2D texture;
+    public Color Color = Color.Aqua;
     
     ///Dictionary that holds all the different Tetromino shapes
     static Dictionary<BlockShape, bool[,]> BlockDict = new ()
@@ -84,7 +85,7 @@ public class Block : GameObject
         Z
     }
     //Stores color and shape of the block
-    struct BlockDefinition 
+    public struct BlockDefinition 
     {
         public Color Color;
         public bool[,] Shape;
@@ -92,34 +93,37 @@ public class Block : GameObject
         public BlockDefinition(bool[,] shape, Color color)
         {
             Color = color;
-            Shape = shape;
+            Shape = shape;  
         }
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        int blocksize = 40;
+        int tileSize = container.TileSize;
         
-        for (int x = 0; x < definition.Shape.GetLength(0); x++)
+        for (int x = 0; x < Definition.Shape.GetLength(0); x++)
         {
-            for (int y = 0; y < definition.Shape.GetLength(1); y++)
+            for (int y = 0; y < Definition.Shape.GetLength(1); y++)
             {
-                if (definition.Shape[x, y]) //Draw the square if it's in the block definition, otherwise obviously don't
+                if (Definition.Shape[y, x]) //Draw the square if it's in the block definition, otherwise obviously don't
                 {
+                    int posX = (x + Position.X) * tileSize;
+                    int posY = (y + Position.Y) * tileSize;
                     spriteBatch.Draw(
                         texture,
-                        new Rectangle(x * blocksize + Position.X, y * blocksize + Position.Y, blocksize, blocksize), //Size and placement of the square
-                        definition.Color
+                        new Rectangle(posX , posY, tileSize, tileSize), //Size and placement of the square
+                        Definition.Color
                         );
                 }
             }
         }
     }
-    public Block(BlockShape blockShape, BlockGrid grid)
+    public Block(BlockShape blockShape, BlockGrid grid, Texture2D tex)
     {
-        bool[,] shape = new bool [4, 4];
+        texture = tex;
+        bool[,] shape = BlockDict[blockShape];
         container = grid;
-        definition = new BlockDefinition(shape, Color.Aqua);
+        Definition = new BlockDefinition(shape, Color.Aqua);
     }
 
     //Move block left/right
@@ -138,34 +142,69 @@ public class Block : GameObject
     void Rotate(bool counterClockwise = false)
     {
         //Temporary rotated definition
-        bool[,] rotated = new bool[definition.Shape.GetLength(0), definition.Shape.GetLength(1)];
+        bool[,] rotated = new bool[Definition.Shape.GetLength(0), Definition.Shape.GetLength(1)];
 
-        for (int x = 0; x < definition.Shape.GetLength(0); x++)
+        for (int x = 0; x < Definition.Shape.GetLength(0); x++)
         {
-            for (int y = 0; y < definition.Shape.GetLength(1); y++)
+            for (int y = 0; y < Definition.Shape.GetLength(1); y++)
             {
-                rotated[y, definition.Shape.GetLength(0) - x - 1] = definition.Shape[x, y];
+                rotated[y, Definition.Shape.GetLength(0) - x - 1] = Definition.Shape[x, y];
             }
         }
         //Set the real rotation to the translated shape
-        definition.Shape = rotated;
+        Definition.Shape = rotated;
         //
     }
 
     //Cool collision code
     public bool CheckCollision(BlockGrid grid)
     {
-        for (int x = 0; x < definition.Shape.GetLength(0); x++)
+        //Loop over all the squares of the tetromino
+        for (int x = 0; x < Definition.Shape.GetLength(0); x++)
         { 
-            for (int y = 0; y < definition.Shape.GetLength(1); y++)
+            for (int y = 0; y < Definition.Shape.GetLength(1); y++)
             {
-                if (definition.Shape[x, y] == true)
+                if (Definition.Shape[y, x] == true)
                 {
-                    if (grid.Grid[Position.X + x, Position.Y + y] != null)
+                    int gridX = grid.Grid.GetLength(0);
+                    int gridY = grid.Grid.GetLength(1);
+
+                    int tileX = Position.X + x;
+                    int tileY = Position.Y + y;
+                    
+                    if (gridX <= tileX || tileX < 0)
                     {
-                        
+                        //Collision with wall
+                        Console.WriteLine("Collision Wall");
+                        return true;
                     }
-                    return true;
+
+                    if (tileY <= 0)
+                    {
+                        //Ignore, it's allowed to be "above" the grid
+                        continue;
+                    }
+                    if (tileY >= gridY)
+                    {
+                        //Collision with the ground
+                        Console.WriteLine("Collision Floor");
+                        return true; 
+                    }
+
+                    try
+                    {
+                        if (grid.Grid[tileX, tileY] != null)
+                        {
+                            //Return true if the tetromino is inside an existing square in the grid
+                            Console.WriteLine("Collision Grid");
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"Collision undefined. At: {tileX}, {tileY}");
+                        return true;
+                    }
                 }
             }
         }
@@ -176,7 +215,7 @@ public class Block : GameObject
     //Attempt to move the block down
     public void Tick()
     {
-        
+        Position.Y += 1;
     }
 
    

@@ -6,7 +6,7 @@ namespace Base;
 
 public class GameObject
 {
-    HashSet<GameObject> children;
+    HashSet<GameObject> children = new();
     public virtual void Update(GameTime gameTime)
     {
         foreach (GameObject child in children)

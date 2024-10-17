@@ -30,6 +30,9 @@ public class Game1 : Game
     {
 
         CurrentScene = new GameScene();
+        CurrentScene.LoadContent(Content);
+        CurrentScene.Init();
+        // ^This should all be handled by a scene changer but like who cares tbh
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
@@ -43,17 +46,16 @@ public class Game1 : Game
         
         CurrentScene.Update(gameTime);
 
-        // TODO: Add your update logic here
 
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
+        _spriteBatch.Begin();
         GraphicsDevice.Clear(Color.Black);
         CurrentScene.Draw(_spriteBatch);
-        // TODO: Add your drawing code here
-
+        _spriteBatch.End();
         base.Draw(gameTime);
     }
 }
