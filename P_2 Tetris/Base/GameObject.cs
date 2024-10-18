@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Base;
 
+//Base class for updatable gameobjects
 public class GameObject
 {
     HashSet<GameObject> children = new();

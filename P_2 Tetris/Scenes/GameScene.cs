@@ -61,6 +61,7 @@ public class GameScene : Scene
                 _nextBlock = TakeBlock();
             }
         }
+        _input.Update();
         //Control stuff
         base.Update(gameTime);
     }

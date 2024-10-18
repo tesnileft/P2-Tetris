@@ -166,6 +166,7 @@ public class Block : GameObject
             {
                 if (Definition.Shape[y, x] == true)
                 {
+                    //Temporary variables to hold important numbers for readability
                     int gridX = grid.Grid.GetLength(0);
                     int gridY = grid.Grid.GetLength(1);
 
@@ -175,7 +176,6 @@ public class Block : GameObject
                     if (gridX <= tileX || tileX < 0)
                     {
                         //Collision with wall
-                        Console.WriteLine("Collision Wall");
                         return true;
                     }
 
@@ -187,7 +187,6 @@ public class Block : GameObject
                     if (tileY >= gridY)
                     {
                         //Collision with the ground
-                        Console.WriteLine("Collision Floor");
                         return true; 
                     }
 
@@ -196,12 +195,12 @@ public class Block : GameObject
                         if (grid.Grid[tileX, tileY] != null)
                         {
                             //Return true if the tetromino is inside an existing square in the grid
-                            Console.WriteLine("Collision Grid");
                             return true;
                         }
                     }
                     catch
                     {
+                        //Debug
                         Console.WriteLine($"Collision undefined. At: {tileX}, {tileY}");
                         return true;
                     }

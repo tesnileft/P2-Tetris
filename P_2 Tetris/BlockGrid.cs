@@ -39,8 +39,8 @@ public class BlockGrid : GameObject
             {
                 if (b.Definition.Shape[y, x])
                 {
+                    //Get the coordinate of where we need to insert a new gridcell
                     Point coord = b.Position + new Point(x, y);
-                    Console.WriteLine($"Inserting at coord {coord}");
                     Grid[coord.X, coord.Y] = new GridCell(b.Color, tileSprite, coord);
                 }
                 
