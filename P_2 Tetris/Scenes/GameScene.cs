@@ -5,6 +5,7 @@ using Base;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using P_2_Tetris.Base;
 
 namespace P_2_Tetris.Scenes;
@@ -35,7 +36,34 @@ public class GameScene : Scene
         ResetBag();
         _nextBlock = TakeBlock();
         _currentBlock = TakeBlock();
+        _input.KeyPress += HandleInput;
+    
     }
+
+    void HandleInput(object o, InputHandler.KeyEventArgs e)
+    {
+        foreach (Keys k in e.DownKeys)
+        {
+            switch (k)
+            {
+                case GameSettings.RotateKey:
+                    //Rotate
+                    _currentBlock.Rotate;
+                    break;
+                case GameSettings.DropKey:
+                    //Drop down
+                    _currentBlock.Drop();
+                    break;
+                case GameSettings.LeftKey:
+                    
+                    break;
+                case GameSettings.RightKey:
+                    break;
+                
+            }
+        }
+        
+    }Dr
 
     public override void Update(GameTime gameTime)
     {
@@ -62,6 +90,8 @@ public class GameScene : Scene
             }
         }
         _input.Update();
+        
+        
         //Control stuff
         base.Update(gameTime);
     }

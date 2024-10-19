@@ -127,9 +127,24 @@ public class Block : GameObject
     }
 
     //Move block left/right
-    public void Move()
+    public void Move(bool right)
     {
-        
+        if (right)
+        {
+            Position.X += 1;
+            if (CheckCollision(container))
+            {
+                Position.X -= 1;
+            }
+        }
+        else
+        {
+            Position.X -= 1;
+            if (CheckCollision(container))
+            {
+                Position.X += 1;
+            } 
+        }
     }
 
     //Drop it down fast n stuff
@@ -139,7 +154,7 @@ public class Block : GameObject
     }
     
     //Weee spinny
-    void Rotate(bool counterClockwise = false)
+    public void Rotate(bool counterClockwise = false)
     {
         //Temporary rotated definition
         bool[,] rotated = new bool[Definition.Shape.GetLength(0), Definition.Shape.GetLength(1)];
