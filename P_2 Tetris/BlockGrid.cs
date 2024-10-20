@@ -42,8 +42,8 @@ public partial class BlockGrid : GameObject
         public double MsTime;
         public double MsTimeSinceTick;
 
-        private double _msTimeThreshold = 300;
-        private double _msTickThreshold = 100;
+        private double _msTimeThreshold = 200;
+        private double _msTickThreshold = 50;
         
         public Action Method;
         public KeyDown()

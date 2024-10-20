@@ -26,6 +26,17 @@ public class MenuScene : Scene
             List<UiElement> uiElements = new ();
             
             
+            SpriteFont font = Content.Load<SpriteFont>("Ui/Font/FontSmaller");
+            TextElement instructionsText = new TextElement(
+                "arrow keys for movement\n" +
+                "Z for rotation",
+                font,
+                new Rectangle(50, windowY/2 - 40 ,20 ,20 )
+            );
+                
+            
+            uiElements.Add(instructionsText);
+            
             Texture2D splash = Content.Load<Texture2D>("UI/TetrisSplash");
             ImageElement splashImage = new ImageElement(splash, new Rectangle(50, 80, 700, 120));
             uiElements.Add(splashImage);

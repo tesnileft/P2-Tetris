@@ -108,7 +108,7 @@ public partial class BlockGrid
                     b.Definition.Shape[y, x] = false;
                     Point coord = b.Position + new Point(x, y);
 
-                    if (coord.Y < 4)
+                    if (coord.Y < 5)
                     {
                         //Trying to place outside of the grid!! Meaning you lose!
                         LoseGame(b);
