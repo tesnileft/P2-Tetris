@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework.Input;
 
 namespace P_2_Tetris.Base;
@@ -8,7 +7,6 @@ namespace P_2_Tetris.Base;
 public class InputHandler
 {
     private KeyboardState _lastKeyboardState = Keyboard.GetState();
-    public EventHandler KeyPress = new EventHandler();
     HashSet<Keys> _pressedKeys = new();
     
     public void Update()
@@ -19,6 +17,7 @@ public class InputHandler
             //Keyboard did something!
             HashSet<Keys> newPressedKeys = new();
             HashSet<Keys> newUpKeys = new();
+            KeyEventArgs e = new();
             
             foreach (Keys k in _pressedKeys)
             {
@@ -37,24 +36,25 @@ public class InputHandler
                     _pressedKeys.Add(k);
                 }
             }
-            KeyPress.Invoke(null, new KeyEventArgs(newPressedKeys, newUpKeys));
+            e.DownKeys = newPressedKeys;
+            e.UpKeys = newUpKeys;
             
+            EventHandler<KeyEventArgs> handler = KeyPress;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
             
         }
-        _lastKeyboardState = Keyboard.GetState();
-        
+        _lastKeyboardState = current;
+
     }
+    public event EventHandler<KeyEventArgs> KeyPress;
 
     public class KeyEventArgs : EventArgs
     {
         public HashSet<Keys> UpKeys;
         public HashSet<Keys> DownKeys;
-        public KeyEventArgs(HashSet<Keys> keyDown, HashSet<Keys> keyUp)
-        {
-            DownKeys = keyDown;
-            UpKeys = keyUp;
-            
-        }
     }
     
 }

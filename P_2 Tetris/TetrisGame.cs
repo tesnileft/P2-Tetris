@@ -6,15 +6,19 @@ using P_2_Tetris.Scenes;
 
 namespace P_2_Tetris;
 
-public class Game1 : Game
+public class TetrisGame : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     Scene CurrentScene;
+    public static TetrisGame Instance;
 
-    public Game1()
+    public TetrisGame()
     {
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.PreferredBackBufferWidth = 800;
+        _graphics.PreferredBackBufferHeight = 800;
+        _graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         this.Window.AllowUserResizing = false;
@@ -28,7 +32,6 @@ public class Game1 : Game
 
     protected override void LoadContent()
     {
-
         CurrentScene = new GameScene();
         CurrentScene.LoadContent(Content);
         CurrentScene.Init();
@@ -52,10 +55,15 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        _spriteBatch.Begin();
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
         GraphicsDevice.Clear(Color.Black);
         CurrentScene.Draw(_spriteBatch);
         _spriteBatch.End();
         base.Draw(gameTime);
+    }
+
+    public void ChangeScene(Scene scene)
+    {
+        CurrentScene = scene;
     }
 }
