@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices.Marshalling;
 using Base;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using P_2_Tetris.Base;
 
 
 namespace P_2_Tetris;
@@ -12,6 +14,7 @@ public class Block : GameObject
 {
     public Point Position; //Position in the grid 0,0 is top left
     public BlockDefinition Definition;
+    public Point Offset = new Point(0, 0);
     public BlockGrid container;
     public Texture2D texture;
     public Color Color = Color.Aqua;
@@ -78,13 +81,13 @@ public class Block : GameObject
     //Dictionary storing the colors for the blocks
     private static Dictionary<BlockShape, Color> BlockColorDict = new()
     {
-        { BlockShape.O, new Color(225, 249, 0) },
+        { BlockShape.O, new Color(249, 249, 30) },
         { BlockShape.I, Color.Aqua},
         { BlockShape.J, new Color(91, 110, 225)},
         { BlockShape.S, new Color(140, 233, 77)},
         { BlockShape.L, new Color(240, 140, 38)},
-        { BlockShape.T, new Color(240, 0 ,240)},
-        { BlockShape.Z, new Color(220, 0 ,0)}
+        { BlockShape.T, new Color(240, 100 ,240)},
+        { BlockShape.Z, new Color(220, 70 ,70)}
     };
     
     //Enum for all the different shapes the blocks can have
@@ -121,7 +124,7 @@ public class Block : GameObject
     public override void Draw(SpriteBatch spriteBatch)
     {
         int tileSize = container.TileSize;
-        Point offset = container.offset;
+        Point offset = this.Offset;
         
         for (int x = 0; x < Definition.Shape.GetLength(0); x++)
         {
@@ -133,7 +136,7 @@ public class Block : GameObject
                     int posY = (y + Position.Y) * tileSize;
                     spriteBatch.Draw(
                         texture,
-                        new Rectangle(posX +offset.X, posY +offset.Y, tileSize, tileSize), //Size and placement of the square
+                        new Rectangle(posX + offset.X, posY + offset.Y, tileSize, tileSize), //Size and placement of the square
                         Color
                         );
                 }
@@ -143,7 +146,7 @@ public class Block : GameObject
     public Block(BlockShape blockShape, BlockGrid grid, Texture2D tex)
     {
         texture = tex;
-        bool[,] shape = BlockDict[blockShape];
+        bool[,] shape = Helper.CopyArray(BlockDict[blockShape]);
         container = grid;
         Color = BlockColorDict[blockShape];
         Definition = new BlockDefinition(shape);
@@ -175,6 +178,8 @@ public class Block : GameObject
     {
         //Temporary rotated definition
         bool[,] rotated = new bool[Definition.Shape.GetLength(0), Definition.Shape.GetLength(1)];
+        
+        //Store original in case we need to un-do the rotation
         bool[,] original = Definition.Shape;
         Point originalPoint = new(Position.X, Position.Y);
         
@@ -187,7 +192,6 @@ public class Block : GameObject
         }
         //Set the real rotation to the translated shape
         Definition.Shape = rotated;
-        
         //Test if rotation can even happen, or if a wall- / floorkick is needed
         bool kicked = false;
         int[] xDirection = {0, 1, -1, 2, -2};
@@ -202,7 +206,7 @@ public class Block : GameObject
                 break;
             }
         }
-
+        //TODO floorkick
         if (!kicked)
         {
             //Wall or floor kick didn't work, so we cannot change the rotation
@@ -234,10 +238,8 @@ public class Block : GameObject
                     if (gridX <= tileX || tileX < 0)
                     {
                         //Collision with wall
-                        Console.WriteLine("Collision with wall");
                         return true;
                     }
-
                     if (tileY < 0)
                     {
                         //Ignore, it's allowed to be "above" the grid
@@ -246,16 +248,13 @@ public class Block : GameObject
                     if (tileY >= gridY)
                     {
                         //Collision with the ground
-                        Console.WriteLine("Collision with ground");
                         return true; 
                     }
-
                     try
                     {
                         if (grid.Grid[tileX, tileY] != null)
                         {
                             //Return true if the tetromino is inside an existing square in the grid
-                            Console.WriteLine("Collision with grid");
                             return true;
                         }
                     }
@@ -275,6 +274,10 @@ public class Block : GameObject
     //Attempt to move the block down, if it collides, insert it there, return true if inserted
     public bool Tick()
     {
+        if (container.GameOverBool)
+        {
+            return false;
+        }
         Position.Y += 1;
         timeSinceLastTick = 0;
         if (CheckCollision(container))

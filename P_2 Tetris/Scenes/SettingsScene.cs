@@ -42,7 +42,7 @@ public class SettingsScene : Scene
         );
         goHomeButton.ButtonDown += (sender, args) =>
         {
-            Game.ChangeScene(new MenuScreen());
+            Game.ChangeScene(new MenuScene());
         };
         elements.Add(goHomeButton);
         

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Base;
+using Base.Ui;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,19 +9,22 @@ using P_2_Tetris.Base;
 
 namespace P_2_Tetris;
 
-public class BlockGrid : GameObject
+public partial class BlockGrid : GameObject
 {
     public GridCell[,] Grid;
     private Texture2D _tileSprite;
     public int TileSize = 32;
-    public Point offset;
-    private Point _blockOffset;
+    public Point Offset;
+    public Point TileOffset;
     Texture2D gridTexture;
+    private Random r = new(DateTime.Now.Millisecond);
     
     private Block _currentBlock;
     private Block _nextBlock;
-    private bool _readyToSpawn = false;
     List<Block> _blocksBag = new List<Block>();
+    
+    public bool GameOverBool = false;
+    public EventHandler GameOver;
     
     private InputHandler _input;
     
@@ -30,6 +34,7 @@ public class BlockGrid : GameObject
     
     List<KeyDown> keyDowns = new List<KeyDown>();
 
+    private Ui _gameUi;
     //Struct to keep track of keys being held down
     class KeyDown
     {
@@ -86,10 +91,11 @@ public class BlockGrid : GameObject
     public BlockGrid(int x, int y, Texture2D sprite, Texture2D gridTexture)
     {
         this.gridTexture = gridTexture;
-        offset = new Point(0, TileSize * 3);
+        Offset = new Point(0, 0);
+        TileOffset = new Point(TileSize * 6, TileSize) + Offset;
         
         _tileSprite = sprite;
-        Grid = new GridCell[x,y];
+        Grid = new GridCell[x,y + 4];
         _input = new InputHandler();
         
         ResetBag();
@@ -105,128 +111,29 @@ public class BlockGrid : GameObject
         keyDowns.Add(leftKeyDown);
         keyDowns.Add(rightKeyDown);
         
+        
+        List<UiElement> gameUiElements = new ();
     }
 
     public override void Update(GameTime gameTime)
     {
-        /* Spawn blocks
-            Move blocks down
-            Check block collision
-            Place blocks into grid
-            Reset bag
-        */
-        
+        if (GameOverBool)
+        {
+            DoDeath();
+            return;
+        }
         _input.Update();
         
         foreach (KeyDown kd in keyDowns)
         {
             kd.Increment(gameTime.ElapsedGameTime.TotalMilliseconds);
         }
-        
         _currentBlock.Update(gameTime);
     }
     
-    void ResetBag()
-    {
-        _blocksBag = new List<Block>();
-        foreach (Block.BlockShape shape in Enum.GetValues(typeof(Block.BlockShape)))
-        {
-            _blocksBag.Add(new Block(shape, this, _tileSprite));
-        }
-    }
-
-    public void SpawnBlock()
-    {
-        _currentBlock = _nextBlock;
-        _nextBlock = TakeBlock();
-        _currentBlock.Position = new Point(Grid.GetLength(0)/2, -3);
-    }
-
-    Block TakeBlock()
-    {
-        if (_blocksBag.Count <= 0)
-        {
-            ResetBag();
-        }
-        Random r = new(_blocksBag.Count);
-        int randomIndex = r.Next(_blocksBag.Count);
-        Block take = _blocksBag[randomIndex];
-        _blocksBag.RemoveAt(randomIndex);
-        return take;
-    }
-    
-    
-    void HandleInput(object o, InputHandler.KeyEventArgs e)
-    {
-        foreach (Keys k in e.DownKeys)
-        {
-            switch (k)
-            {
-                case GameSettings.RotateKey:
-                    //Rotate
-                    _currentBlock.Rotate();
-                    break;
-                case GameSettings.DropKey:
-                    //Drop down (With DAS)
-                    _currentBlock.Tick();
-                    dropKeyDown.Down = true;
-                    break;
-                //Moving left & right with DAS
-                case GameSettings.LeftKey:
-                    _currentBlock.Move(false);
-                    leftKeyDown.Down = true;
-                    break;
-                case GameSettings.RightKey:
-                    _currentBlock.Move(true);
-                    rightKeyDown.Down = true;
-                    break;
-                
-            }
-        }
-
-        foreach (Keys k in e.UpKeys)
-        {
-            switch (k)
-            {
-                case GameSettings.DropKey:
-                    dropKeyDown.Reset();
-                    break;
-                case GameSettings.LeftKey:
-                    leftKeyDown.Reset();
-                    break;
-                case GameSettings.RightKey:
-                    rightKeyDown.Reset();
-                    break;
-                
-            }
-        }
-    }
-    
-    //Insert a block into the grid after it's detected to have gotten stuck
-    public void InsertBlock(Block b)
-    {
-        for (int x = 0; x < b.Definition.Shape.GetLength(0); x++)
-        {
-            for (int y = 0; y < b.Definition.Shape.GetLength(1); y++)
-            {
-                if (b.Definition.Shape[y, x])
-                {
-                    //Get the coordinate of where we need to insert a new gridcell
-                    Point coord = b.Position + new Point(x, y);
-                    Grid[coord.X, coord.Y] = new GridCell(b.Color, _tileSprite);
-                }
-            }
-        }
-
-        bool[] clearLines = CheckClearLine();
-        if (clearLines.Length > 0)
-        {
-            ClearLine(clearLines);
-        }
-    }
     public override void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(gridTexture, new Rectangle(offset, new Point(TileSize * 12, TileSize * 22)), Color.White);
+        spriteBatch.Draw(gridTexture, new Rectangle(Offset, new Point(TileSize * (12 + 5), TileSize * (22 + 5) ) ), Color.White);
         //loop over all cells in the grid to render them if there's something present there
         for(int x = 0; x < Grid.GetLength(0); x++)
         {
@@ -235,67 +142,26 @@ public class BlockGrid : GameObject
                 GridCell cell = Grid[x, y];
                 if (cell != null)
                 {
-                    spriteBatch.Draw(cell.Sprite, new Rectangle(new Point(x,y) * new Point(TileSize) + offset, new Point(TileSize)), cell.Color);
+                    spriteBatch.Draw(cell.Sprite, new Rectangle((new Point(x,y)) * new Point(TileSize) + TileOffset , new Point(TileSize)), cell.Color);
                 }
             }
         }
-        _currentBlock.Draw(spriteBatch);
+
+        if (_nextBlock != null)
+        {
+            _nextBlock.Draw(spriteBatch);
+        }
+
+        if (_currentBlock != null)
+        {
+            _currentBlock.Draw(spriteBatch);
+        }
     }
 
-    //Check if any lines can be cleared, middle step for animating something nice to happen
-    private bool[] CheckClearLine()
+    void DoDeath()
     {
-        bool[] lines = new bool[Grid.GetLength(1)];
         
-        for (int y = Grid.GetLength(1) -1; y >= 0 ; y--)
-        {
-            for (int x = 0; x < Grid.GetLength(0); x++)
-            {
-                if (Grid[x, y] == null) //If a line is missing a cell, it's not a full line, so just skip checking the rest
-                {
-                    break;
-                }
-                //If the last cell is filled, it's a full line so mark for clearing
-                if (x == Grid.GetLength(0) -1)
-                {
-                    lines[y] = true;
-                }
-            }
-        }
-        return lines;
     }
-    //Clear an array of lines, and compact the blocks again and add score for what lines got cleared
-    private void ClearLine(bool[] lines)
-    {
-        int consecutiveLines = 0;
-        int totalLines = 0;
-        for (int y = Grid.GetLength(1) - 1; y >= 0; y--)
-        {
-            if (lines[y])
-            {
-                consecutiveLines++;
-                totalLines++;
-                //Clear the line
-                for (int x = 0; x < Grid.GetLength(0); x++)
-                {
-                    Grid[x, y] = null;
-                }
-            }
-            else
-            {
-                //TODO Score
-                consecutiveLines = 0;
-                
-                //Move the line down by the amount of total lines counted that have been cleared
-                if (totalLines > 0)
-                {
-                    for (int x = 0; x < Grid.GetLength(0); x++)
-                    {
-                        Grid[x, y + totalLines] = Grid[x, y];
-                        Grid[x, y] = null;
-                    }
-                }
-            }
-        }
-    }
+    
+    
 }

@@ -26,13 +26,13 @@ public class TetrisGame : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
+        Instance = this;
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        CurrentScene = new GameScene();
+        CurrentScene = new MenuScene();
         CurrentScene.LoadContent(Content);
         CurrentScene.Init();
         // ^This should all be handled by a scene changer but like who cares tbh
@@ -43,13 +43,7 @@ public class TetrisGame : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-            Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-        
         CurrentScene.Update(gameTime);
-
-
         base.Update(gameTime);
     }
 
@@ -62,8 +56,11 @@ public class TetrisGame : Game
         base.Draw(gameTime);
     }
 
-    public void ChangeScene(Scene scene)
+    public void ChangeScene(Scene newScene)
     {
-        CurrentScene = scene;
+        CurrentScene = newScene;
+        newScene.LoadContent(Content);
+        newScene.Init();
+        
     }
 }

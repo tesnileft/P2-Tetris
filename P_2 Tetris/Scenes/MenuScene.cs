@@ -9,13 +9,13 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace P_2_Tetris.Scenes;
-public class MenuScreen : Scene
+public class MenuScene : Scene
 {
         private Ui menuUi;
         private int windowX;
         private int windowY;
         TetrisGame Game = TetrisGame.Instance;
-        public MenuScreen()
+        public MenuScene()
         {
             windowX = Game.Window.ClientBounds.Width;
             windowY = Game.Window.ClientBounds.Height;
@@ -26,16 +26,32 @@ public class MenuScreen : Scene
             List<UiElement> uiElements = new ();
             
             
-            Texture2D splash = Content.Load<Texture2D>("Sprites/UI/MenuSplash");
-            ImageElement splashImage = new ImageElement(splash, new Rectangle(150, 80, 500, 200));
+            Texture2D splash = Content.Load<Texture2D>("UI/TetrisSplash");
+            ImageElement splashImage = new ImageElement(splash, new Rectangle(50, 80, 700, 120));
             uiElements.Add(splashImage);
             
+            Texture2D highlightSpriteLarge = Content.Load<Texture2D>(@"UI/BigButtonHighLight");
+            //1 Player start button
+            Texture2D onePlayerSprite = Content.Load<Texture2D>("UI/1P_Play");
+            
+            Button onepButton = new (
+                new Vector2(windowX/2 - 300, 400),
+                new Vector2(200),
+                onePlayerSprite,
+                highlightSpriteLarge
+            );
+            onepButton.ButtonDown += (obj, args) =>
+            {
+                Game.ChangeScene(new GameScene());
+            };
+            uiElements.Add(onepButton);
+            
             //2 Player start button
-            Texture2D twoPlayerSprite = Content.Load<Texture2D>("Sprites/UI/2P_sprite");
-            Texture2D highlightSpriteLarge = Content.Load<Texture2D>(@"Sprites/UI/Highlight");
+            Texture2D twoPlayerSprite = Content.Load<Texture2D>("UI/2P_Play");
+            
             Button twopButton = new (
                 new Vector2(windowX/2-50, 400),
-                new Vector2(100),
+                new Vector2(200),
                 twoPlayerSprite,
                 highlightSpriteLarge
                 );
@@ -46,8 +62,8 @@ public class MenuScreen : Scene
             uiElements.Add(twopButton);
             
             //Git link button
-            Texture2D highlightSpriteSmall = Content.Load<Texture2D>(@"Sprites/UI/Highlight_small");
-            Texture2D gitSprite = Content.Load<Texture2D>(@"Sprites/UI/Git");
+            Texture2D highlightSpriteSmall = Content.Load<Texture2D>(@"UI/Highlight_small");
+            Texture2D gitSprite = Content.Load<Texture2D>(@"UI/Git");
             Button gitButton = new(
                 new Vector2(windowX - 40, windowY - 40), //Bottom right corner
                 new Vector2(40),
@@ -56,7 +72,7 @@ public class MenuScreen : Scene
             );
             gitButton.ButtonDown += (sender, args) =>
             {
-                string url = "https://github.com/tesnileft/P1_Pong";
+                string url = "https://github.com/tesnileft/P2-Tetris";
                 try
                 {
                     Process.Start(url);
@@ -86,7 +102,7 @@ public class MenuScreen : Scene
             uiElements.Add(gitButton);
             
             //Exit button
-            Texture2D exitSprite = Content.Load<Texture2D>(@"Sprites/UI/X");
+            Texture2D exitSprite = Content.Load<Texture2D>(@"UI/X");
             Button exitButton = new(
                 new Vector2(windowX - 40, 0), //Top right corner
                 new Vector2(40),
@@ -100,7 +116,7 @@ public class MenuScreen : Scene
             uiElements.Add(exitButton);
             
             //Settings button
-            Texture2D settingsSprite = Content.Load<Texture2D>(@"Sprites/UI/Settings");
+            Texture2D settingsSprite = Content.Load<Texture2D>(@"UI/Settings");
             Button settingsButton = new(
                 new Vector2(windowX - 120, windowY - 40), //Top right corner
                 new Vector2(40),
@@ -122,11 +138,14 @@ public class MenuScreen : Scene
 
         public override void Draw(SpriteBatch spriteBatch)
         {
+            menuUi.Draw(spriteBatch);
             base.Draw(spriteBatch);
         }
 
         public override void Update(GameTime gameTime)
         {
+            //Handle controls
+            menuUi.Update(gameTime);
             base.Update(gameTime);
         }
     }
